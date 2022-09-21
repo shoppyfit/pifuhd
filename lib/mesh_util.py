@@ -25,7 +25,7 @@ from skimage import measure
 import numpy as np
 import torch
 from .sdf import create_grid, eval_grid_octree, eval_grid
-from skimage import measure
+
 
 from numpy.linalg import inv
 
@@ -73,19 +73,17 @@ def reconstruction(net, cuda, calib_tensor,
         sdf = eval_grid(coords, eval_func, num_samples=num_samples)
 
     # Finally we do marching cubes
-    try:
-        verts, faces, normals, values = measure.marching_cubes_lewiner(sdf, thresh)
-        # transform verts into world coordinate system
-        trans_mat = np.matmul(calib_inv, mat)
-        verts = np.matmul(trans_mat[:3, :3], verts.T) + trans_mat[:3, 3:4]
-        verts = verts.T
-        # in case mesh has flip transformation
-        if np.linalg.det(trans_mat[:3, :3]) < 0.0:
-            faces = faces[:,::-1]
-        return verts, faces, normals, values
-    except:
-        print('error cannot marching cubes')
-        return -1
+
+    verts, faces, normals, values = measure.marching_cubes(sdf, thresh)
+    # transform verts into world coordinate system
+    trans_mat = np.matmul(calib_inv, mat)
+    verts = np.matmul(trans_mat[:3, :3], verts.T) + trans_mat[:3, 3:4]
+    verts = verts.T
+    # in case mesh has flip transformation
+    if np.linalg.det(trans_mat[:3, :3]) < 0.0:
+        faces = faces[:,::-1]
+    return verts, faces, normals, values
+
 
 
 def save_obj_mesh(mesh_path, verts, faces=None):

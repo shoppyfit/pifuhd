@@ -21,8 +21,8 @@ args = parser.parse_args()
 
 resolution = str(args.resolution)
 
-start_id = -1
-end_id = -1
+start_id = 0
+end_id = 2
 cmd = ['--dataroot', args.input_path, '--results_path', args.out_path,\
        '--loadSize', '1024', '--resolution', resolution, '--load_netMR_checkpoint_path', \
        args.ckpt_path,\
